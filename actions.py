@@ -26,12 +26,14 @@ def enviar_mensaje(message_json):
     load_dotenv()
     TOKEN = os.getenv("TOKEN")
     ENDPOINT = os.getenv("ENDPOINT")
-    # print(message_json)
+    print(message_json)
 
     try:
         headers = {"Content-Type": "application/json",
                    "Authorization": "Bearer " + TOKEN}
         response = requests.post(ENDPOINT, headers=headers, data=message_json)
+        print(response.status_code)
+        print(response.content)
 
         # Si se envía un error 200:
         if response.status_code == 200:
@@ -41,6 +43,22 @@ def enviar_mensaje(message_json):
     
     except Exception as error:
         return error, 403
+
+
+# CONSTRUYE UN JSON CON UN MENSAJE DE TEXTO TEMPLATE:
+def formato_texto(number, text):
+    message = json.dumps(
+            {
+                "messaging_product": "whatsapp",    
+                "recipient_type": "individual",
+                "to": number,
+                "type": "text",
+                "text": {
+                    "body": text
+                }
+            }
+    )
+    return message
 
 
 # CONSTRUYE UN JSON CON UN MENSAJE DE TEXTO:

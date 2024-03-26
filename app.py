@@ -2,7 +2,7 @@
 
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from actions import obtener_texto, enviar_mensaje, formato_template
+from actions import obtener_texto, enviar_mensaje, formato_template, formato_texto
 import os
 
 import random
@@ -61,28 +61,29 @@ def recibir_mensajes():
     except Exception as error:
         return jsonify({"status": "error", "message": "Mensaje no enviado", "error": str(error)})
 
+
 # Respuestas e interacciones de texto del bot:
 def respuestas_bot(text, number):
+  
+  # Palabras clave para preguntas sobre horarios:
+  horario_keywords = [u"hora", u"horario", u"cuándo", u"cuando"]
 
-    # Si el mensaje de texto contiene un "hola":
-    if "hola" in text.lower():
-        # Variables para un template llamado "saludo":
-        dado1 = str(random.randint(1, 6))
-        dado2 = str(random.randint(1, 6))
-        
-        return enviar_mensaje(formato_template("saludo", number, [dado1, dado2]))
-    
-    # Si el mensaje de texto contiene un "hora":
-    elif "hora" in text.lower():
-        # Variables para un template llamado "hora":
-        fecha = datetime.datetime.now()
-        hora = fecha.hour
-        minutos = fecha.minute
-        return enviar_mensaje(formato_template("hora", number, [hora, minutos]))
-    
-    # Si no coincide con saludo ni hora, envía un mensaje predeterminado:
-    else:
-        return enviar_mensaje(formato_template("default", number, []))
+  # Palabras clave para preguntas sobre el lugar:
+  lugar_keywords = [u"lugar", u"localización", u"localizacion", u"dónde", u"donde"]
+
+  # Texto de entrada:
+  text = text.lower()
+
+  # Verifica la pregunta del usuario
+  if any(keyword in text for keyword in horario_keywords):
+      message = "Lunes, miércoles y jueves de 3:00 a 5:00 (hora de México 🇲🇽) 😉\nTambién transmitimos las clases en vivo en Youtube:\nhttps://www.youtube.com/@ClubDeProgramacionCreativa/streams"
+  elif any(keyword in text for keyword in lugar_keywords):
+      message = "Laboratorio 204 de la Universidad Autónoma de Aguascalientes 🧐\nTambién transmitimos las clases en vivo en Youtube:\nhttps://www.youtube.com/@ClubDeProgramacionCreativa/streams"
+  else:
+      message = "*¡Bienvenido al Club de Programación Creativa!* 🐈\nSomos un grupo de apasionados por la automatización y los bots. Creamos proyectos y aprendemos programación.\nPregúntame lo que necesites y no olvides suscribirte a https://youtu.be/mLpH-yDq9Z4?si=oasYM8ZfVumKA4tm"
+
+  # Envía el mensaje:
+  return enviar_mensaje(formato_texto(number, message))
 
 # Punto de ejecución:
 if __name__ == "__main__":
